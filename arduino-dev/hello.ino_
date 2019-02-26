@@ -1,0 +1,15 @@
+#define LED_PIN 13 
+//https://olivier.dossmann.net/2015/10/d%C3%A9velopper-pour-arduino-en-ligne-de-commande/
+
+int sensorValue; 
+
+void setup(){
+  pinMode( LED_PIN, OUTPUT ); 
+}
+
+void loop() {
+    digitalWrite(LED_PIN, HIGH);
+    delay(500);
+    digitalWrite(LED_PIN, LOW);
+    delay(500);
+}
