@@ -18,20 +18,20 @@
 #define COLOR_ORDER BGR // Mode de couleur des LED
 
 //Bandeau 1
-#define DATA_PIN_1    12
-#define CLK_PIN_1     13
+#define CLK_PIN_1     11
+#define DATA_PIN_1    10
 
 //Bandeau 2
-#define DATA_PIN_2    10
-#define CLK_PIN_2     11
+#define CLK_PIN_2     9
+#define DATA_PIN_2    8
 
 //Bandeau 3
-#define DATA_PIN_3    8
-#define CLK_PIN_3     9
+#define CLK_PIN_3     7
+#define DATA_PIN_3    6
 
 //Bandeau 4
-#define DATA_PIN_4    6
-#define CLK_PIN_4     7
+#define CLK_PIN_4     5
+#define DATA_PIN_4    4
 
 //Luminosité max
 #define BRIGHTNESSMAX 64
