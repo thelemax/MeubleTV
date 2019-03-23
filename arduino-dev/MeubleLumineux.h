@@ -42,14 +42,14 @@
 //Nombre Horizontal Max
 #define MAX_HORIZONTAL 120
 
-class MeubleLumineux
-{
+class MeubleLumineux {
 public:
   MeubleLumineux();
   void clear();
   void show();
   void setBrightness(uint8_t scale);
   void setColor(uint8_t  pos, CRGB color);
+  void setColor(CRGB color);
   void setTop(uint8_t  i, CRGB color);
   void setBottom(uint8_t  i, CRGB color);
   void setMiddle(uint8_t pos , uint8_t i, CRGB color);

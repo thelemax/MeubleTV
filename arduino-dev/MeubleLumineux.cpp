@@ -27,6 +27,7 @@ void MeubleLumineux::setBrightness(uint8_t scale) {
 void MeubleLumineux::show() {
   FastLED.show();
 }
+
 void MeubleLumineux::setColor(uint8_t pos, CRGB color) {
   switch(pos) {
     case 1:
@@ -53,6 +54,14 @@ void MeubleLumineux::setColor(uint8_t pos, CRGB color) {
       break;
   }
 }
+
+void MeubleLumineux::setColor(CRGB color) {
+	MeubleLumineux::setColor(1, color);
+	MeubleLumineux::setColor(2, color);
+	MeubleLumineux::setColor(3, color);
+	MeubleLumineux::setColor(4, color);
+}
+
 void MeubleLumineux::setTop(uint8_t  i, CRGB color) {
   if (i>=0 && i<30) {
     leds1[78-i] = color;
@@ -64,6 +73,7 @@ void MeubleLumineux::setTop(uint8_t  i, CRGB color) {
     leds4[49+i-90] = color;
   }
 }
+
 void MeubleLumineux::setBottom(uint8_t  i, CRGB color) {
   if (i>=0 && i<30) {
     leds1[3+i] = color;
@@ -75,6 +85,7 @@ void MeubleLumineux::setBottom(uint8_t  i, CRGB color) {
     leds4[32-i+90] = color;
   }
 }
+
 void MeubleLumineux::setMiddle(uint8_t pos, uint8_t i, CRGB color) {
   //COTE1 33-48
   //COTE2 0-2 79-91

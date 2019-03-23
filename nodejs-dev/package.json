@@ -1,18 +1,16 @@
 {
   "name": "meuble-tv-lumineux",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "API permettant de piloter le Meuble TV Lumineux",
   "main": "index.js",
   "scripts": {
     "prestart": "npm install",
-    "start": "node index.js"
+    "start": "node meuble-tv.js"
   },
   "author": "Maxime LEMAIRE",
   "license": "ISC",
   "dependencies": {
-    "connect": "^3.6.6",
-    "js-yaml": "^3.12.0",
-    "serialport": "^7.0.2",
-    "swagger-tools": "^0.10.4"
+    "express": "^4.16.4",
+    "serialport": "^7.0.2"
   }
 }
