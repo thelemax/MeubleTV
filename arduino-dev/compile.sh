@@ -1,2 +1,2 @@
 #!/bin/bash
-make
+make && sh upload.sh

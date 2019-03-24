@@ -3,8 +3,9 @@
 MeubleLumineux meubleTV;
 
 String message = "";
-String messagePrecedent = "";
-String commande = "";
+String ligneCommandePrecedente = "";
+String ligneCommande = "";
+int indexCommande = 0;
 
 String getValue(String data, char separator, int index) {
   int found = 0;
@@ -20,6 +21,99 @@ String getValue(String data, char separator, int index) {
   return found>index ? data.substring(strIndex[0], strIndex[1]) : "";
 }
 
+String getLigneCommande(String message, int index) {
+  return getValue(message,'|',index);
+}
+
+String getCommande(String ligneCommande) {
+  return getValue(ligneCommande,';',0);
+}
+
+String getString(String ligneCommande, int index) {
+  return getValue(ligneCommande,';',index);
+}
+
+int getInt(String ligneCommande, int index) {
+  return getValue(ligneCommande,';',index).toInt();
+}
+
+CRGB getCRGB(String ligneCommande, int index) {
+	int red = getInt(ligneCommande, index);
+    int green = getInt(ligneCommande, index + 1);
+    int blue = getInt(ligneCommande, index + 2);
+    return CRGB(red, green, blue);
+}
+
+void traiterCommande(String ligneCommande) {
+  String commande = getCommande(ligneCommande);
+  if (ligneCommandePrecedente == ligneCommande) {
+    return;  
+  }
+  ligneCommandePrecedente = ligneCommande;
+  //On Evite de retraiter une commande "statique"
+  if (commande == "RAINBOW") {
+    meubleTV.rainbow();
+    meubleTV.show();
+  } else if (commande == "SLEEP") {
+    delay(getInt(ligneCommande, 1));
+  } else if (commande == "LOOP") {
+	indexCommande = 0;
+  } else if (commande == "OFF") {
+    meubleTV.clear();
+    meubleTV.show();
+  } else if (commande == "WHITE") {
+    meubleTV.setColor(CRGB::White);
+    meubleTV.show();
+  } else if (commande == "BLUE") {
+    meubleTV.setColor(CRGB::Blue);
+    meubleTV.show();
+  } else if (commande == "RED") {
+    meubleTV.setColor(CRGB::Red);
+    meubleTV.show();
+  } else if (commande == "GREEN") {
+    meubleTV.setColor(CRGB::Green);
+    meubleTV.show();
+  } else if (commande == "MAGENTA") {
+    meubleTV.setColor(CRGB::Fuchsia);
+    meubleTV.show();
+  } else if (commande == "CYAN") {
+    meubleTV.setColor(CRGB::Cyan);
+    meubleTV.show();
+  } else if (commande == "YELLOW") {
+    meubleTV.setColor(CRGB::Yellow);
+    meubleTV.show();
+  } else if (commande == "GRAY") {
+    meubleTV.setColor(CRGB::Gray);
+    meubleTV.show();
+  } else if (commande == "PINK") {
+    meubleTV.setColor(CRGB::HotPink);
+    meubleTV.show();
+  } else if (commande == "PURPLE") {
+    meubleTV.setColor(CRGB::Purple);
+    meubleTV.show();
+  } else if (commande == "ORANGE") {
+    meubleTV.setColor(CRGB::OrangeRed);
+    meubleTV.show();
+  } else if (commande == "COLOR") {
+    meubleTV.setColor(getCRGB(ligneCommande, 1));
+    meubleTV.show();
+  } else if (commande == "SHOW") {
+    meubleTV.show();
+  } else if (commande == "CLEAR") {
+    meubleTV.clear();
+  } else if (commande == "BRIGHT") {
+    meubleTV.setBrightness( getInt(ligneCommande, 1));
+  } else if (commande == "COLORP") {
+    meubleTV.setColor(getInt(ligneCommande, 1), getCRGB(ligneCommande, 2));
+  } else if (commande == "TOP") {
+    meubleTV.setTop(getInt(ligneCommande, 1), getCRGB(ligneCommande, 2));
+  } else if (commande == "BOTTOM") {
+    meubleTV.setBottom(getInt(ligneCommande, 1), getCRGB(ligneCommande, 2));
+  } else if (commande == "MIDDLE") {
+    meubleTV.setMiddle(getInt(ligneCommande, 1), getInt(ligneCommande, 2), getCRGB(ligneCommande, 3));
+  }
+}
+
 void setup() {
   Serial.begin(9600);
    
@@ -27,11 +121,8 @@ void setup() {
   
   //Sequence de démarrage
   meubleTV.clear();
-  meubleTV.setBrightness(20);
-  meubleTV.setColor(1,CRGB::White);
-  meubleTV.setColor(2,CRGB::White);
-  meubleTV.setColor(3,CRGB::White);
-  meubleTV.setColor(4,CRGB::White);
+  meubleTV.setBrightness(1);
+  meubleTV.setColor(CRGB::Blue);
   meubleTV.show();
   delay(3000);
   meubleTV.clear();
@@ -42,72 +133,13 @@ void setup() {
 void loop() {
   //Reception du message
   if (Serial.available() > 0) {
-	  message = Serial.readStringUntil('\n');
-	  commande = getValue(message,';',0);
+    message = Serial.readStringUntil('\n');
+	indexCommande = 0;
   }
-
-  //Traitement des commandes Scenario
-  if (commande == "rainbow") {
-	meubleTV.rainbow();
-	meubleTV.show();
-  } else if (messagePrecedent != message) {
-	//On Evite de retraiter une commande "statique"
-	if (commande == "off") {
-	  meubleTV.clear();
-	  meubleTV.show();
-    } else if (commande == "white") {
-	  meubleTV.setColor(CRGB::White);
-	  meubleTV.show();
-    } else if (commande == "blue") {
-	  meubleTV.setColor(CRGB::Blue);
-	  meubleTV.show();
-    } else if (commande == "red") {
-	  meubleTV.setColor(CRGB::Red);
-	  meubleTV.show();
-    } else if (commande == "green") {
-	  meubleTV.setColor(CRGB::Green);
-	  meubleTV.show();
-    } else if (commande == "color") {
-	  int red = getValue(message,';',1).toInt();
-	  int green = getValue(message,';',2).toInt();
-	  int blue = getValue(message,';',3).toInt();
-	  meubleTV.setColor(CRGB(red, green, blue));
-	  meubleTV.show();
-    } else if (commande == "show") {
-	  meubleTV.show();
-    } else if (commande == "clear") {
-	  meubleTV.clear();
-    } else if (commande == "setBrightness") {
-	  int scale = getValue(message,';',1).toInt();
-	  meubleTV.setBrightness(scale);
-    } else if (commande == "setColor") {
-	  uint8_t  pos = getValue(message,';',1).toInt();
-	  int red = getValue(message,';',2).toInt();
-	  int green = getValue(message,';',3).toInt();
-	  int blue = getValue(message,';',4).toInt();
-	  meubleTV.setColor(pos, CRGB(red, green, blue));
-    } else if (commande == "setTop") {
-	  uint8_t  pos = getValue(message,';',1).toInt();
-	  int red = getValue(message,';',2).toInt();
-	  int green = getValue(message,';',3).toInt();
-	  int blue = getValue(message,';',4).toInt();
-	  meubleTV.setTop(pos, CRGB(red, green, blue));
-    } else if (commande == "setBottom") {
-	  uint8_t  pos = getValue(message,';',1).toInt();
-	  int red = getValue(message,';',2).toInt();
-	  int green = getValue(message,';',3).toInt();
-	  int blue = getValue(message,';',4).toInt();
-	  meubleTV.setBottom(pos, CRGB(red, green, blue));
-    } else if (commande == "setMiddle") {
-	  uint8_t  pos = getValue(message,';',1).toInt();
-	  uint8_t  i = getValue(message,';',2).toInt();
-	  int red = getValue(message,';',3).toInt();
-	  int green = getValue(message,';',4).toInt();
-	  int blue = getValue(message,';',5).toInt();
-	  meubleTV.setMiddle(pos, i, CRGB(red, green, blue));
-    } else if (commande == "rainbow") {
-	  meubleTV.rainbow();
-    }
+  ligneCommande = getLigneCommande(message, indexCommande);
+		
+  if (ligneCommande != "") {
+	indexCommande++;
+	traiterCommande(ligneCommande);
   }
-  messagePrecedent = message;
 }
