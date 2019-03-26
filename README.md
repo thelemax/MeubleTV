@@ -58,6 +58,9 @@ node -v
 #Version node.js v10.13.0
 ```
 
+### Installation de PM2
+https://www.digitalocean.com/community/tutorials/how-to-set-up-a-node-js-application-for-production-on-ubuntu-16-04
+
 ### Installation Arduino Ligne de Commande
 https://olivier.dossmann.net/2015/10/d%C3%A9velopper-pour-arduino-en-ligne-de-commande/
 
