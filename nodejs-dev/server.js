@@ -2,9 +2,6 @@ var express = require("express");
 var bodyParser = require('body-parser')
 var serialport = require('serialport');
 
-const FIRST_CHAR = '>';
-const LAST_CHAR = '$';
-
 var portName = '/dev/ttyS0';
 var serverPort = 8080;
 
@@ -17,6 +14,7 @@ var port = new serialport(portName, {
 const  app = express();
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json());
+app.use(express.static('pages'));
 
 app.listen(serverPort, () => {
  console.log("Server running on port " + serverPort);
@@ -53,14 +51,18 @@ function envoyerMessage(cmd, res) {
   });
 }
 
+app.get('/', function (req, res) {
+  res.render('./index.html');
+});
+
 /*
 [
   { "commande": "nomCommande1", "parametres": ["param1", "param2", ... ] },
   { "commande": "nomCommande2", "parametres": ["param1", "param2", ... ] }
 ]
 */
-app.post('/sequence', (req, res) => {
-	 console.log(req.body);
+app.post('/api/sequence', (req, res) => {
+  console.log(req.body);
   var commande = "";
   var array = req.body
   for (var i = 0; i < array.length; i++) {
@@ -115,7 +117,7 @@ app.post('/sequence', (req, res) => {
   envoyerMessage(commande, res);
 });
 
-app.get('/cmd/:cmd', (req, res) => {
+app.get('/api/cmd/:cmd', (req, res) => {
   port.write(req.params.cmd + '\n', (err) => {
 	console.log('> ' + req.params.cmd);
     if (err) {
@@ -127,46 +129,46 @@ app.get('/cmd/:cmd', (req, res) => {
   });
 });
 
-app.get('/off', (req, res) => {
+app.get('/api/off', (req, res) => {
 	envoyerMessage('OFF', res);
 });
 
-app.get('/clear', (req, res) => {
+app.get('/api/clear', (req, res) => {
 	envoyerMessage('CLEAR', res);
 });
 
-app.get('/show', (req, res) => {
+app.get('/api/show', (req, res) => {
 	envoyerMessage('SHOW', res);
 });
 
-app.get('/rainbow', (req, res) => {
+app.get('/api/rainbow', (req, res) => {
 	envoyerMessage('RAINBOW', res);
 });
 
-app.get('/setBrightness/:scale', (req, res) => {
+app.get('/api/setBrightness/:scale', (req, res) => {
 	envoyerMessage('BRIGHT;' + req.params.scale, res);
 });
 
-app.get('/setColor/:pos/:color', (req, res) => {
+app.get('/api/setColor/:pos/:color', (req, res) => {
 	//BLANC, BLEU, ROUGE, VERT, MAGENTA, CYAN, JAUNE, GRIS, ROSE, VIOLET, ORANGE
 	//255;255;255
 	envoyerMessage('COLORP;' + req.params.pos + ';' + req.params.color, res);
 });
 
-app.get('/color/:color', (req, res) => {
+app.get('/api/color/:color', (req, res) => {
 	//BLANC, BLEU, ROUGE, VERT, MAGENTA, CYAN, JAUNE, GRIS, ROSE, VIOLET, ORANGE
 	//255;255;255
 	envoyerMessage('COLOR;' + req.params.color, res);
 });
 
-app.get('/setTop/:pos/:color', (req, res) => {
+app.get('/api/setTop/:pos/:color', (req, res) => {
 	envoyerMessage('TOP;' + req.params.pos + ';' + req.params.color, res);
 });
 
-app.get('/setBottom/:pos/:color', (req, res) => {
+app.get('/api/setBottom/:pos/:color', (req, res) => {
 	envoyerMessage('BOTTOM;' + req.params.pos + ';' + req.params.color, res);
 });
 
-app.get('/setMiddle/:pos/:color', (req, res) => {
+app.get('/api/setMiddle/:pos/:color', (req, res) => {
 	envoyerMessage('MIDDLE;' + req.params.pos + ';' + req.params.color, res);
 });
