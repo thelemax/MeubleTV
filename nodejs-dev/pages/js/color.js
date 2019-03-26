@@ -17,7 +17,7 @@ function main() {
     }
 
     colorjoe.rgb('rgbPicker').on('change', function(c) {
-        val.innerHTML = c.css();
+        //val.innerHTML = c.css();
 		console.log(Math.round(c.red()*255)+';'+Math.round(c.green()*255)+';'+Math.round(c.blue()*255));
 		
 		const Http = new XMLHttpRequest();
