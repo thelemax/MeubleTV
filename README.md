@@ -66,10 +66,35 @@ sudo apt-get install nginx -y
 #### Configuration nginx
 
 ```
+sudo apt-get update && sudo apt-get upgrade -y
+sudo apt-get install nginx -y
+
 sudo systemctl status nginx    # To check the status of nginx
 sudo systemctl start nginx     # To start nginx
 
 sudo systemctl enable nginx    # nginx au démarrage
+
+sudo nano /etc/nginx/sites-available/default
+```
+
+```
+server {
+    listen 80;
+    server_name your_domain.com;
+    location / {
+        proxy_pass http://127.0.0.1:8080;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+     }
+}
+```
+
+```
+sudo nginx -t                  # Verification que la configuration nginx est ok
+sudo /etc/init.d/nginx reload  # Rechargement de nginx
 ```
 
 ### Installation de pm2
