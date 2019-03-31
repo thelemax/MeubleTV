@@ -58,7 +58,9 @@ node -v
 #Version node.js v10.13.0
 ```
 
-### Installation de PM2
+### Installation de nginx + PM2
+https://medium.com/@utkarsh_verma/configure-nginx-as-a-web-server-and-reverse-proxy-for-nodejs-application-on-aws-ubuntu-16-04-server-872922e21d38
+
 https://www.digitalocean.com/community/tutorials/how-to-set-up-a-node-js-application-for-production-on-ubuntu-16-04
 
 ### Installation Arduino Ligne de Commande
