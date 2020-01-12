@@ -105,7 +105,7 @@ step_4_nodejs() {
 step_5_arduino() {
  echo "---------------------------------------------------------------------"
   echo "${JAUNE}Commence l'étape 5 arduino${NORMAL}"
-  apt-get_install arduino-core arduino-mk
+  apt_install arduino-core arduino-mk
   
   echo "Paramétrage des variables d'environnement arduino"
   export ARDUINO_DIR="/usr/share/arduino"
@@ -113,13 +113,33 @@ step_5_arduino() {
   export AVR_TOOLS_DIR="/usr"
   export ISP_PORT="/dev/ttyACM0"
   
-  echo "Copie des librairies arduino"
-  #/usr/share/arduino/librairies
-  #FastLED Wire SoftwareSerial
+  echo "Recuperation de FastLED-${FASTLED_VERSION}"
+  #/usr/share/arduino/libraries
+
+  wget --no-check-certificate https://github.com/FastLED/FastLED/archive/${FASTLED_VERSION}.zip -O /tmp/FastLED-${FASTLED_VERSION}.zip
   #https://github.com/FastLED/FastLED/archive/master.zip
   #https://github.com/FastLED/FastLED/archive/3.3.2.zip
 
+  if [ $? -ne 0 ]; then
+    echo "${ROUGE}Ne peut télécharger FastLED depuis github.Annulation${NORMAL}"
+    exit 1
+  fi
+  if [ ! /tmp/FastLED-${FASTLED_VERSION}.zip ]; then
+    echo "${ROUGE}Ne peut trouver l'archive FastLED.zip - Annulation${NORMAL}"
+    exit 1
+  fi
 
+  unzip -q /tmp/FastLED-${FASTLED_VERSION}.zip -d /tmp/
+  if [ $? -ne 0 ]; then
+    echo "${ROUGE}Ne peut décompresser l'archive - Annulation${NORMAL}"
+    exit 1
+  fi
+  rm -r /usr/share/arduino/libraries/FastLED
+  cp -r /tmp/FastLED-${FASTLED_VERSION} /usr/share/arduino/libraries/FastLED
+  
+  rm /tmp/FastLED-${FASTLED_VERSION}.zip
+  rm -r /tmp/FastLED-${FASTLED_VERSION}
+  
   echo "${VERT}étape 5 arduino réussie${NORMAL}" 
 }
 
@@ -147,6 +167,7 @@ step_6_meubletv() {
 }
 
 STEP=5
+FASTLED_VERSION=3.3.2
 HTML_OUTPUT=0
 while getopts ":s:v:h:" opt; do
   case $opt in
