@@ -9,8 +9,10 @@ BLANCLAIR="\\033[1;08m"
 JAUNE="\\033[1;33m"
 CYAN="\\033[1;36m"
 
+#inspiré de https://raw.githubusercontent.com/jeedom/core/master/install/install.sh
+
 if [ $(id -u) != 0 ] ; then
-  echo "Les droits de super-utilisateur (root) sont requis pour installer Jeedom"
+  echo "Les droits de super-utilisateur (root) sont requis pour installer MeubleTV"
   echo "Veuillez lancer 'sudo $0' ou connectez-vous en tant que root, puis relancez $0"
   exit 1
 fi
@@ -51,7 +53,7 @@ step_3_nginx() {
  # systemctl status nginx
 
   
-  echo "Start nginx"
+  echo "${CYAN}Start nginx${NORMAL}"
   systemctl status nginx > /dev/null 2>&1
   if [ $? -ne 0 ]; then
     service nginx status
@@ -71,17 +73,9 @@ step_3_nginx() {
     fi
   fi
 
-  echo "Enable nginx au démarrage"
+  echo "${CYAN}Enable nginx au démarrage${NORMAL}"
   systemctl enable nginx
-    
-  echo "Paramètrage de nginx"
-  #wget --no-check-certificate https://github.com/thelemax/MeubleTV/config/nginx/serveur.conf -O /tmp/nginx-serveur.conf
-	  
-  cp /tmp/nginx-serveur.conf /etc/nginx/sites-available/nginx-serveur.conf
-  nginx -t
-  #rm /tmp/nginx-serveur.conf
-  /etc/init.d/nginx reload
-  
+
   echo "${VERT}étape 3 nginx réussie${NORMAL}" 
 }
 
@@ -92,10 +86,10 @@ step_4_nodejs() {
   #curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -
   apt_install nodejs npm
   
-  echo "nodejs version : "
+  echo "${CYAN}nodejs version :${NORMAL}"
   node -v
   
-  echo "npm version : "
+  echo "${CYAN}npm version :${NORMAL}"
   npm -v
 
   #npm install pm2
@@ -107,13 +101,13 @@ step_5_arduino() {
   echo "${JAUNE}Commence l'étape 5 arduino${NORMAL}"
   apt_install arduino-core arduino-mk
   
-  echo "Paramétrage des variables d'environnement arduino"
+  echo "${CYAN}Paramétrage des variables d'environnement arduino${NORMAL}"
   export ARDUINO_DIR="/usr/share/arduino"
   export ARDMK_DIR="/usr/share/arduino"
   export AVR_TOOLS_DIR="/usr"
   export ISP_PORT="/dev/ttyACM0"
   
-  echo "Recuperation de FastLED-${FASTLED_VERSION}"
+  echo "${CYAN}Recuperation de FastLED-${FASTLED_VERSION}${NORMAL}"
   #/usr/share/arduino/libraries
 
   wget --no-check-certificate https://github.com/FastLED/FastLED/archive/${FASTLED_VERSION}.zip -O /tmp/FastLED-${FASTLED_VERSION}.zip
@@ -147,26 +141,47 @@ step_6_meubletv() {
  echo "---------------------------------------------------------------------"
   echo "${JAUNE}Commence l'étape 6 meubletv${NORMAL}"
 
-  
   mkdir /home/pi/git
+  cd /home/pi/git
   
+  rm -r /home/pi/git/MeubleTV
+  #https://github.com/thelemax/MeubleTV.git
   git clone https://github.com/thelemax/MeubleTV.git
-  
   #https://github.com/thelemax/MeubleTV/archive/master.zip
   
-  echo "Compilation et Téléversement du programme arduino"
-  cd /home/pi/git/MeubleTV/arduino-dev/
-  make & sh upload.sh
+  echo "${CYAN}Paramètrage de nginx${NORMAL}"
+  #wget --no-check-certificate https://github.com/thelemax/MeubleTV/config/nginx/serveur.conf -O /tmp/nginx-serveur.conf
+	  
+  cp /home/pi/git/MeubleTV/config/nginx/serveur.conf /etc/nginx/sites-available/nginx-serveur.conf
+  nginx -t
+  /etc/init.d/nginx reload
+
+  echo "${CYAN}Paramétrage arduino${NORMAL}"
+  cp /home/pi/git/MeubleTV/config/arduino/avrdude.conf /etc/avrdude.conf
   
-  echo "Compilation et Démarrage du programme nodejs"
+  echo "${CYAN}Compilation et Téléversement du programme arduino${NORMAL}"
+  cd /home/pi/git/MeubleTV/arduino-dev/
+  make
+  sh upload.sh
+  
+  #avrdude: Can't find programmer id "linuxgpio"
+
+  
+  echo "${CYAN}Compilation et Démarrage du programme nodejs${NORMAL}"
   cd /home/pi/git/MeubleTV/nodejs-dev/
   npm install
   node meuble-tv.js &
   
+  #npm WARN npm npm does not support Node.js v10.15.2
+  #npm WARN npm You should probably upgrade to a newer version of node as we
+  #npm WARN npm can't make any promises that npm will work with this version.
+  #npm WARN npm Supported releases of Node.js are the latest release of 4, 6, 7, 8, 9.
+  #npm WARN npm You can find the latest version at https://nodejs.org/
+  
   echo "${VERT}étape 6 meubletv réussie${NORMAL}" 
 }
 
-STEP=5
+STEP=6
 FASTLED_VERSION=3.3.2
 HTML_OUTPUT=0
 while getopts ":s:v:h:" opt; do
