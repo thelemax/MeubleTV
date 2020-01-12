@@ -86,16 +86,33 @@ step_3_nginx() {
 }
 
 step_4 nodejs() {
-  apt_install nodejs
+  apt_install nodejs npm
   npm install pm2
+  
+  cd /home/pi/git/MeubleTV/nodejs-dev/
+  npm install
+  node meuble-tv.js &
 }
 
 step_5_arduino() {
+ echo "---------------------------------------------------------------------"
+  echo "${JAUNE}Commence l'étape 5 arduino${NORMAL}"
   apt-get_install arduino-core arduino-mk
+  
+  echo "Paramétrage des variables d'environnement arduino"
   export ARDUINO_DIR="/usr/share/arduino"
   export ARDMK_DIR="/usr/share/arduino"
   export AVR_TOOLS_DIR="/usr"
   export ISP_PORT="/dev/ttyACM0"
+  
+  echo "Copie des librairies arduino"
+  #/usr/share/arduino/librairies
+  #FastLED Wire SoftwareSerial
+  #https://github.com/FastLED/FastLED/archive/master.zip
+  #https://github.com/FastLED/FastLED/archive/3.3.2.zip
+
+  cd /home/pi/git/MeubleTV/arduino-dev/
+  make && sh upload.sh
 }
 
 step_6_meubletv() {
