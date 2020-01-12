@@ -88,10 +88,6 @@ step_3_nginx() {
 step_4 nodejs() {
   apt_install nodejs npm
   npm install pm2
-  
-  cd /home/pi/git/MeubleTV/nodejs-dev/
-  npm install
-  node meuble-tv.js &
 }
 
 step_5_arduino() {
@@ -116,7 +112,25 @@ step_5_arduino() {
 }
 
 step_6_meubletv() {
+ echo "---------------------------------------------------------------------"
+  echo "${JAUNE}Commence l'étape 6 meubletv${NORMAL}"
 
+  
+  mkdir /home/pi/git
+  
+  git clone https://github.com/thelemax/MeubleTV.git
+  
+  #https://github.com/thelemax/MeubleTV/archive/master.zip
+  
+  echo "Compilation et Téléversement du programme arduino"
+  cd /home/pi/git/MeubleTV/arduino-dev/
+  make
+  sh upload.sh
+  
+  echo "Compilation et Démarrage du programme nodejs"
+  cd /home/pi/git/MeubleTV/nodejs-dev/
+  npm install
+  node meuble-tv.js &
 }
 
 STEP=1
