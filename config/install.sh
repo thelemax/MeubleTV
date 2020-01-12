@@ -44,50 +44,57 @@ step_2_mainpackage() {
 
 step_3_nginx() {
   echo "---------------------------------------------------------------------"
-  echo "${JAUNE}Commence l'étape 2 nginx${NORMAL}"
+  echo "${JAUNE}Commence l'étape 3 nginx${NORMAL}"
   apt_install nginx
   
-  echo "Check the status of nginx"
-  systemctl status nginx
+ # echo "Check the status of nginx"
+ # systemctl status nginx
 
-   
-  
-  echo "Enable nginx au démarrage"
-  systemctl enable nginx
   
   echo "Start nginx"
   systemctl status nginx > /dev/null 2>&1
+  if [ $? -ne 0 ]; then
+    service nginx status
     if [ $? -ne 0 ]; then
-      service nginx status
+      systemctl start nginx > /dev/null 2>&1
       if [ $? -ne 0 ]; then
-        systemctl start nginx > /dev/null 2>&1
-        if [ $? -ne 0 ]; then
-          service nginx start > /dev/null 2>&1
-        fi
+        service nginx start > /dev/null 2>&1
       fi
     fi
-    systemctl status nginx > /dev/null 2>&1
+  fi
+  systemctl status nginx > /dev/null 2>&1
+  if [ $? -ne 0 ]; then
+    service nginx status
     if [ $? -ne 0 ]; then
-      service nginx status
-      if [ $? -ne 0 ]; then
-        echo "${ROUGE}Ne peut lancer nginx - Annulation${NORMAL}"
-        exit 1
-      fi
+      echo "${ROUGE}Ne peut lancer nginx - Annulation${NORMAL}"
+      exit 1
     fi
-    echo "${VERT}étape 3 nginx réussie${NORMAL}" 
-	
-	
-	
-  wget --no-check-certificate https://github.com/thelemax/MeubleTV/config/nginx/serveur.conf -O /tmp/nginx/serveur.conf
+  fi
+
+  echo "Enable nginx au démarrage"
+  systemctl enable nginx
+    
+  echo "Paramètrage de nginx"
+  #wget --no-check-certificate https://github.com/thelemax/MeubleTV/config/nginx/serveur.conf -O /tmp/nginx-serveur.conf
 	  
-  cp /tmp/nginx/serveur.conf /etc/nginx/sites-available/serveur.conf
+  cp /tmp/nginx-serveur.conf /etc/nginx/sites-available/nginx-serveur.conf
   nginx -t
+  #rm /tmp/nginx-serveur.conf
   /etc/init.d/nginx reload
+  
+  echo "${VERT}étape 3 nginx réussie${NORMAL}" 
 }
 
 step_4_nodejs() {
+ echo "---------------------------------------------------------------------"
+  echo "${JAUNE}Commence l'étape 4 nodejs${NORMAL}"
+  
+  #curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -
   apt_install nodejs npm
+  
+  node -v
   npm install pm2
+  echo "${VERT}étape 4 nodejs réussie${NORMAL}" 
 }
 
 step_5_arduino() {
@@ -133,7 +140,7 @@ step_6_meubletv() {
   node meuble-tv.js &
 }
 
-STEP=1
+STEP=4
 HTML_OUTPUT=0
 while getopts ":s:v:h:" opt; do
   case $opt in
