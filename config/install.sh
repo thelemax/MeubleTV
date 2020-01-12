@@ -85,7 +85,7 @@ step_3_nginx() {
   /etc/init.d/nginx reload
 }
 
-step_4 nodejs() {
+step_4_nodejs() {
   apt_install nodejs npm
   npm install pm2
 }
