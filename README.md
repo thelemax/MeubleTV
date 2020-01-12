@@ -37,6 +37,21 @@ network={
 }
 ```
 
+
+
+```
+copier wpa_supplicant.conf dans boot et un fichier vide nommé ssh
+```
+```
+country=FR # Your 2-digit country code
+ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
+network={
+    ssid="chez_nous"
+    psk="Nursse: Une fille moi!"
+    key_mgmt=WPA-PSK
+}
+```
+
 Redémarrage du rpi
 ```
 sudo reboot
@@ -91,6 +106,9 @@ server {
      }
 }
 ```
+https://github.com/onandoffables/avrdude-linuxgpio
+
+http://ozzmaker.com/program-avr-using-raspberry-pi-gpio/
 
 ```
 sudo nginx -t                  # Verification que la configuration nginx est ok
