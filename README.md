@@ -9,11 +9,11 @@ Image ISO: https://downloads.raspberrypi.org/raspbian_lite_latest
 Guide d'installation: https://www.raspberrypi.org/documentation/installation/installing-images/README.md
 
 ### raspi-config
-Configuration de la locale : fr_FR.UTF-8 UTF-8
-Configuration time zone : Europe > Paris
-Configuration Clavier: Generic / Orther > French
-Activation du SSH (5 Interfacing Options > P2 SSH --> Yes)
-Expand filesytem
+- Configuration de la locale : fr_FR.UTF-8 UTF-8
+- Configuration time zone : Europe > Paris
+- Configuration Clavier: Generic / Orther > French
+- Activation du SSH (5 Interfacing Options > P2 SSH --> Yes)
+- Expand filesytem
 
 ```
 # Mise à jour des packages
