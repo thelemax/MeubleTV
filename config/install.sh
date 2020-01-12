@@ -95,7 +95,7 @@ step_4_nodejs() {
   node -v
   npm -v
 
-  npm install pm2
+  #npm install pm2
   echo "${VERT}étape 4 nodejs réussie${NORMAL}" 
 }
 
