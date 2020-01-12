@@ -92,7 +92,10 @@ step_4_nodejs() {
   #curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -
   apt_install nodejs npm
   
+  echo "nodejs version : "
   node -v
+  
+  echo "npm version : "
   npm -v
 
   #npm install pm2
@@ -116,8 +119,8 @@ step_5_arduino() {
   #https://github.com/FastLED/FastLED/archive/master.zip
   #https://github.com/FastLED/FastLED/archive/3.3.2.zip
 
-  cd /home/pi/git/MeubleTV/arduino-dev/
-  make && sh upload.sh
+
+  echo "${VERT}étape 5 arduino réussie${NORMAL}" 
 }
 
 step_6_meubletv() {
@@ -133,16 +136,17 @@ step_6_meubletv() {
   
   echo "Compilation et Téléversement du programme arduino"
   cd /home/pi/git/MeubleTV/arduino-dev/
-  make
-  sh upload.sh
+  make & sh upload.sh
   
   echo "Compilation et Démarrage du programme nodejs"
   cd /home/pi/git/MeubleTV/nodejs-dev/
   npm install
   node meuble-tv.js &
+  
+  echo "${VERT}étape 6 meubletv réussie${NORMAL}" 
 }
 
-STEP=4
+STEP=5
 HTML_OUTPUT=0
 while getopts ":s:v:h:" opt; do
   case $opt in
