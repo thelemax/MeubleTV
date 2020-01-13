@@ -1,8 +1,21 @@
 # MeubleTV
 
-## Materiel
+## Mise en oeuvre matérielle
+
+### Composants nécessaires
+
+- 1x Raspberry pi zero w
+- 1x Arduino uno
+- 1x Alimentation 5V 30A
+- 4x LED STRIP APA102
+
+### Schéma de raccordement
 
 ![Schéma de Montage](/docs/schéma.png)
+
+### Montage
+
+TODO
 
 ## Installation de l'OS sur le raspberry pi zero w
 
