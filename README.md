@@ -38,5 +38,5 @@ raspi-config
 
 ## Installation de MeubleTV
 ```
-wget https://github.com/thelemax/MeubleTV/blob/master/config/install.sh | sudo bash
+wget -O- https://github.com/thelemax/MeubleTV/blob/master/config/install.sh | sudo bash
 ```
