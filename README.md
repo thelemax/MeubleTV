@@ -2,7 +2,7 @@
 
 ## Materiel
 
-TODO
+![Schéma de Montage](/docs/schéma.png)
 
 ## Installation de l'OS sur le raspberry pi zero w
 
