@@ -41,14 +41,21 @@ network={
 }
 ```
 
-### Autre paramétrages une fois connecté en ssh
+### Paramétrage une fois connecté en ssh
 ```
-raspi-config
+sudo raspi-config
+
 ```
+- 5 Interfacing Options > P6 Serial > No (login shell to be accessible over serial), Yes (Serial port hardware)
+- 7 Advanced Options > A1 Expand Filesystem
+
 - Configuration de la locale : fr_FR.UTF-8 UTF-8
 - Configuration time zone : Europe > Paris
 - Configuration Clavier: Generic / Orther > French
-- Expand filesytem
+
+```
+reboot
+```
 
 ## Installation de MeubleTV
 ```
