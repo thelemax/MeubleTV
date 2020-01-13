@@ -5,6 +5,7 @@
 ### Composants nécessaires
 
 - 1x Raspberry pi zero w
+- 1x microSD Card 8GO
 - 1x Arduino uno
 - 1x Alimentation 5V 30A
 - 4x LED STRIP APA102
