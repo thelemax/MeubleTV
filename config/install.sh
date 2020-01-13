@@ -25,6 +25,14 @@ apt_install() {
   fi
 }
 
+apt_uninstall() {
+  apt-get -y autoremove "$@"
+  if [ $? -ne 0 ]; then
+    echo "${ROUGE}Ne peut desinstaller $@ - Annulation${NORMAL}"
+    exit 1
+  fi
+}
+
 step_1_upgrade() {
   echo "---------------------------------------------------------------------"
   echo "${JAUNE}Commence l'étape 1 de la révision${NORMAL}"
@@ -38,16 +46,14 @@ step_1_upgrade() {
 step_2_mainpackage() {
   echo "---------------------------------------------------------------------"
   echo "${JAUNE}Commence l'étape 2 paquet principal${NORMAL}"
-  apt_install ntp ca-certificates unzip curl sudo cron
-  apt-get -y install locate tar telnet wget logrotate fail2ban dos2unix ntpdate htop iotop vim iftop smbclient
-  apt-get -y install git nano
+  apt_install ntp ca-certificates unzip curl sudo cron locate tar telnet wget logrotate fail2ban dos2unix ntpdate htop iotop vim iftop smbclient git nano
   echo "${VERT}étape 2 paquet principal réussie${NORMAL}"
 }
 
 step_3_nginx() {
   echo "---------------------------------------------------------------------"
   echo "${JAUNE}Commence l'étape 3 nginx${NORMAL}"
-  apt_install nginx
+  apt_install nginx nodejs npm
   
  # echo "Check the status of nginx"
  # systemctl status nginx
@@ -83,8 +89,10 @@ step_4_nodejs() {
  echo "---------------------------------------------------------------------"
   echo "${JAUNE}Commence l'étape 4 nodejs${NORMAL}"
   
-  #curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -
-  apt_install nodejs npm
+  curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -
+  #apt_install nodejs npm
+  
+  curl https://www.npmjs.com/install.sh | sudo sh
   
   echo "${CYAN}nodejs version :${NORMAL}"
   node -v
@@ -157,15 +165,13 @@ step_6_meubletv() {
   /etc/init.d/nginx reload
 
   echo "${CYAN}Paramétrage arduino${NORMAL}"
+  #TODO Vérification que le paramétrage est en place
   cp /home/pi/git/MeubleTV/config/arduino/avrdude.conf /etc/avrdude.conf
-  
+
   echo "${CYAN}Compilation et Téléversement du programme arduino${NORMAL}"
   cd /home/pi/git/MeubleTV/arduino-dev/
   make
   sh upload.sh
-  
-  #avrdude: Can't find programmer id "linuxgpio"
-
   
   echo "${CYAN}Compilation et Démarrage du programme nodejs${NORMAL}"
   cd /home/pi/git/MeubleTV/nodejs-dev/
@@ -181,7 +187,13 @@ step_6_meubletv() {
   echo "${VERT}étape 6 meubletv réussie${NORMAL}" 
 }
 
-STEP=6
+step_9_uninstall() {
+  apt_uninstall autoremove nginx arduino-core arduino-mk
+  rm -r /home/pi/git/MeubleTV
+}
+
+
+STEP=0
 FASTLED_VERSION=3.3.2
 HTML_OUTPUT=0
 while getopts ":s:v:h:" opt; do
@@ -240,6 +252,8 @@ case ${STEP} in
   5) step_5_arduino
   ;;
   6) step_6_meubletv
+  ;;
+  9) step_9_uninstall
   ;;
   *) echo "${ROUGE}Désolé, Je ne peux sélectionner une ${STEP} étape pour vous !${NORMAL}"
   ;;
