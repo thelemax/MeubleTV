@@ -9,8 +9,6 @@ BLANCLAIR="\\033[1;08m"
 JAUNE="\\033[1;33m"
 CYAN="\\033[1;36m"
 
-#inspiré de https://raw.githubusercontent.com/jeedom/core/master/install/install.sh
-
 if [ $(id -u) != 0 ] ; then
   echo "Les droits de super-utilisateur (root) sont requis pour installer MeubleTV"
   echo "Veuillez lancer 'sudo $0' ou connectez-vous en tant que root, puis relancez $0"
@@ -192,7 +190,7 @@ step_6_meubletv() {
 
   rm /tmp/meubletv.zip
 
-  chmod 777 ${REP_ROOT}/MeubleTV-${VERSION}
+  chmod -R 777 ${REP_ROOT}/MeubleTV-${VERSION}
 
   echo "${CYAN}Compilation et Téléversement du programme arduino${NORMAL}"
   
@@ -202,7 +200,7 @@ step_6_meubletv() {
   
   echo "${CYAN}Compilation et Démarrage du programme nodejs${NORMAL}"
   cd ${REP_ROOT}/MeubleTV-${VERSION}/nodejs-dev/
-  npm install
+  npm install --unsafe-perm --verbose -g sails
  # node meuble-tv.js
 
   cd ${REP_ROOT}/MeubleTV-${VERSION}
