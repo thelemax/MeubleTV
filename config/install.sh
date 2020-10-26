@@ -9,12 +9,14 @@ BLANCLAIR="\\033[1;08m"
 JAUNE="\\033[1;33m"
 CYAN="\\033[1;36m"
 
+#Verification root mode
 if [ $(id -u) != 0 ] ; then
   echo "Les droits de super-utilisateur (root) sont requis pour installer MeubleTV"
   echo "Veuillez lancer 'sudo $0' ou connectez-vous en tant que root, puis relancez $0"
   exit 1
 fi
 
+#Commande apt-get install
 apt_install() {
   apt-get -y install "$@"
   if [ $? -ne 0 ]; then
@@ -23,6 +25,7 @@ apt_install() {
   fi
 }
 
+#Mise à jour des librairies
 step_1_upgrade() {
   echo "---------------------------------------------------------------------"
   echo "${JAUNE}Commence l'étape 1 de la révision${NORMAL}"
@@ -33,6 +36,7 @@ step_1_upgrade() {
   echo "${VERT}étape 1 de la révision réussie${NORMAL}"
 }
 
+#Installation des packages principaux
 step_2_mainpackage() {
   echo "---------------------------------------------------------------------"
   echo "${JAUNE}Commence l'étape 2 paquet principal${NORMAL}"
@@ -42,15 +46,13 @@ step_2_mainpackage() {
   echo "${VERT}étape 2 paquet principal réussie${NORMAL}"
 }
 
+#Installation nginx
 step_3_nginx() {
   echo "---------------------------------------------------------------------"
   echo "${JAUNE}Commence l'étape 3 nginx${NORMAL}"
   apt_install nginx
-  
- # echo "Check the status of nginx"
- # systemctl status nginx
-
-  
+  # echo "Check the status of nginx"
+  # systemctl status nginx
   echo "${CYAN}Start nginx${NORMAL}"
   systemctl status nginx > /dev/null 2>&1
   if [ $? -ne 0 ]; then
@@ -94,8 +96,9 @@ step_3_nginx() {
   echo "${VERT}étape 3 nginx réussie${NORMAL}" 
 }
 
+#Installation nodejs et npm
 step_4_nodejs() {
- echo "---------------------------------------------------------------------"
+  echo "---------------------------------------------------------------------"
   echo "${JAUNE}Commence l'étape 4 nodejs${NORMAL}"
   
   #curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -
@@ -111,8 +114,9 @@ step_4_nodejs() {
   echo "${VERT}étape 4 nodejs réussie${NORMAL}" 
 }
 
+#Installation du compilateur arduino
 step_5_arduino() {
- echo "---------------------------------------------------------------------"
+  echo "---------------------------------------------------------------------"
   echo "${JAUNE}Commence l'étape 5 arduino${NORMAL}"
   apt_install arduino-core arduino-mk
   
@@ -167,49 +171,60 @@ step_5_arduino() {
   echo "${VERT}étape 5 arduino réussie${NORMAL}" 
 }
 
+#Récupération des sources
 step_6_meubletv() {
  echo "---------------------------------------------------------------------"
-  echo "${JAUNE}Commence l'étape 6 meubletv${NORMAL}"
+ echo "${JAUNE}Commence l'étape 6 meubletv${NORMAL}"
 
-  wget --no-check-certificate https://github.com/thelemax/MeubleTV/archive/${VERSION}.zip -O /tmp/meubletv.zip
+ wget --no-check-certificate https://github.com/thelemax/MeubleTV/archive/${VERSION}.zip -O /tmp/meubletv.zip
 
-  if [ $? -ne 0 ]; then
-    echo "${ROUGE}Ne peut télécharger MeubleTV depuis github.Annulation${NORMAL}"
-    exit 1
-  fi
-  if [ ! /tmp/meubletv.zip ]; then
-    echo "${ROUGE}Ne peut trouver l'archive MeubleTV.zip - Annulation${NORMAL}"
-    exit 1
-  fi
+ if [ $? -ne 0 ]; then
+   echo "${ROUGE}Ne peut télécharger MeubleTV depuis github.Annulation${NORMAL}"
+   exit 1
+ fi
+ if [ ! /tmp/meubletv.zip ]; then
+   echo "${ROUGE}Ne peut trouver l'archive MeubleTV.zip - Annulation${NORMAL}"
+   exit 1
+ fi
 
-  unzip -o -q /tmp/meubletv.zip -d $PWD
-  if [ $? -ne 0 ]; then
-    echo "${ROUGE}Ne peut décompresser l'archive - Annulation${NORMAL}"
-    exit 1
-  fi
+ unzip -o -q /tmp/meubletv.zip -d $PWD
+ if [ $? -ne 0 ]; then
+   echo "${ROUGE}Ne peut décompresser l'archive - Annulation${NORMAL}"
+   exit 1
+ fi
 
-  rm /tmp/meubletv.zip
+ rm /tmp/meubletv.zip
 
-  chmod -R 777 ${REP_ROOT}/MeubleTV-${VERSION}
-
-  echo "${CYAN}Compilation et Téléversement du programme arduino${NORMAL}"
-  
-  cd ${REP_ROOT}/MeubleTV-${VERSION}/arduino-dev/
-  #make
-  #sh upload.sh
-  
-  echo "${CYAN}Compilation et Démarrage du programme nodejs${NORMAL}"
-  cd ${REP_ROOT}/MeubleTV-${VERSION}/nodejs-dev/
-  npm install --unsafe-perm --verbose -g sails
- # node meuble-tv.js
-
-  cd ${REP_ROOT}/MeubleTV-${VERSION}
-  echo "${VERT}étape 6 meubletv réussie${NORMAL}" 
+ chmod -R 777 ${REP_ROOT}/MeubleTV-${VERSION}
 }
 
-STEP=6
+#Installation programme arduino
+step_7_install_arduino(){
+ echo "${CYAN}Compilation et Téléversement du programme arduino${NORMAL}"
+  
+ cd ${REP_ROOT}/MeubleTV-${VERSION}/arduino-dev/
+ make
+ sh upload.sh
+
+ cd ${REP_ROOT}/MeubleTV-${VERSION}
+ echo "${VERT}étape 7 meubletv réussie${NORMAL}" 
+}
+
+#Installation du programme nodejs
+step_8_install_nodejs(){
+ echo "${CYAN}Compilation et Démarrage du programme nodejs${NORMAL}"
+ cd ${REP_ROOT}/MeubleTV-${VERSION}/nodejs-dev/
+ npm install --unsafe-perm --verbose -g sails
+ node meuble-tv.js
+
+ cd ${REP_ROOT}/MeubleTV-${VERSION}
+ echo "${VERT}étape 8 meubletv réussie${NORMAL}" 
+}
+
+#Variables
+STEP=0
 FASTLED_VERSION=3.3.2
-VERSION=master
+VERSION=develop
 HTML_OUTPUT=0
 REP_ROOT=$PWD
 while getopts ":s:v:h:" opt; do
@@ -255,6 +270,8 @@ case ${STEP} in
   step_4_nodejs
   step_5_arduino
   step_6_meubletv
+  step_7_install_arduino
+  step_8_install_nodejs
   echo "Installation finie. Un redémarrage devrait être effectué"
   ;;
   1) step_1_upgrade
@@ -268,6 +285,12 @@ case ${STEP} in
   5) step_5_arduino
   ;;
   6) step_6_meubletv
+  ;;
+  7) step_7_install_arduino
+  ;;
+  8) step_8_install_nodejs
+  ;;
+  9) step_uninstall
   ;;
   *) echo "${ROUGE}Désolé, Je ne peux sélectionner une ${STEP} étape pour vous !${NORMAL}"
   ;;
