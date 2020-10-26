@@ -38,6 +38,8 @@ network={
 }
 ```
 
+Le raspberry pi est maintenant accessible en ssh avec le login/mdp par défaut du raspberry PI.
+
 ### Paramétrage une fois connecté en ssh
 ```
 sudo raspi-config
