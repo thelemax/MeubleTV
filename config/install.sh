@@ -72,8 +72,8 @@ step_3_nginx() {
     echo "${ROUGE}Ne peut trouver l'archive nginx-serveur.conf - Annulation${NORMAL}"
     exit 1
   fi
-  rm /etc/nginx/sites-available/nginx-serveur.conf
-  cp /tmp/nginx-serveur.conf /etc/nginx/sites-available/nginx-serveur.conf
+  #rm /etc/nginx/sites-available/nginx-serveur.conf
+  cp -n /tmp/nginx-serveur.conf /etc/nginx/sites-available/nginx-serveur.conf
 
   nginx -t
 
@@ -175,8 +175,8 @@ step_5_arduino() {
     echo "${ROUGE}Ne peut trouver l'archive avrdude.conf - Annulation${NORMAL}"
     exit 1
   fi
-  rm /etc/avrdude.conf
-  cp /tmp/avrdude.conf /etc/avrdude.conf
+  #rm /etc/avrdude.conf
+  cp -n /tmp/avrdude.conf /etc/avrdude.conf
   rm /tmp/avrdude.conf
   
   echo "${VERT}étape 5 arduino réussie${NORMAL}" 
@@ -231,7 +231,12 @@ step_8_install_nodejs(){
   npm install --unsafe-perm --verbose -g sails
   #node meuble-tv.js
 
+  cp -n ${REP_ROOT}/MeubleTV-${VERSION}/config/nodejs/node.service  /etc/systemd/system/node.service
+
+  # echo "Check the status of node"
+  # systemctl status node
   echo "${CYAN}Start node{NORMAL}"
+ 
   systemctl status node > /dev/null 2>&1
   if [ $? -ne 0 ]; then
    service node status
