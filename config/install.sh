@@ -26,12 +26,7 @@ apt_install() {
 }
 
 #Désinstallation du programme
-step_uninstall() {
-
-
-
-
-}
+#step_uninstall() { }
 
 #Mise à jour des librairies
 step_1_upgrade() {
