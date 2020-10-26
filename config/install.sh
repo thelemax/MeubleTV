@@ -30,6 +30,7 @@ step_uninstall() {
 
  #desinstallation nginx
  apt -y remove nginx
+ rm -rf /etc/nginx
 
 }
 
@@ -211,46 +212,49 @@ step_6_meubletv() {
 #Installation programme arduino
 step_7_install_arduino(){
  echo "${CYAN}Compilation et Téléversement du programme arduino${NORMAL}"
-  
- cd ${REP_ROOT}/MeubleTV-${VERSION}/arduino-dev/
- make
- sh upload.sh
-
- cd ${REP_ROOT}/MeubleTV-${VERSION}
+ if [ -d ${REP_ROOT}/MeubleTV-${VERSION} ]; then
+  cd ${REP_ROOT}/MeubleTV-${VERSION}/arduino-dev/
+  make
+  sh upload.sh
+ else
+  echo "${ROUGE}Repertoire introuvable${NORMAL}"
+ fi
  echo "${VERT}étape 7 meubletv réussie${NORMAL}" 
 }
 
 #Installation du programme nodejs
 step_8_install_nodejs(){
  echo "${CYAN}Compilation et Démarrage du programme nodejs${NORMAL}"
- cd ${REP_ROOT}/MeubleTV-${VERSION}/nodejs-dev/
- npm install --unsafe-perm --verbose -g sails
- #node meuble-tv.js
+
+ if [ -d ${REP_ROOT}/MeubleTV-${VERSION} ]; then
+  cd ${REP_ROOT}/MeubleTV-${VERSION}/nodejs-dev/
+  npm install --unsafe-perm --verbose -g sails
+  #node meuble-tv.js
 
   echo "${CYAN}Start node{NORMAL}"
   systemctl status node > /dev/null 2>&1
   if [ $? -ne 0 ]; then
-    service node status
+   service node status
+   if [ $? -ne 0 ]; then
+    systemctl start node > /dev/null 2>&1
     if [ $? -ne 0 ]; then
-      systemctl start node > /dev/null 2>&1
-      if [ $? -ne 0 ]; then
-        service node start > /dev/null 2>&1
-      fi
+     service node start > /dev/null 2>&1
     fi
+   fi
   fi
   systemctl status node > /dev/null 2>&1
   if [ $? -ne 0 ]; then
-    service node status
-    if [ $? -ne 0 ]; then
-      echo "${ROUGE}Ne peut lancer node - Annulation${NORMAL}"
-      exit 1
-    fi
+   service node status
+   if [ $? -ne 0 ]; then
+    echo "${ROUGE}Ne peut lancer node - Annulation${NORMAL}"
+    exit 1
+   fi
   fi
-
   echo "${CYAN}Enable node au démarrage${NORMAL}"
   systemctl enable node
-
- cd ${REP_ROOT}/MeubleTV-${VERSION}
+ else
+  echo "${ROUGE}Repertoire introuvable${NORMAL}"
+ fi
  echo "${VERT}étape 8 meubletv réussie${NORMAL}" 
 }
 
