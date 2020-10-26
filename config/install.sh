@@ -228,7 +228,7 @@ step_8_install_nodejs(){
 
  if [ -d ${REP_ROOT}/MeubleTV-${VERSION} ]; then
   cd ${REP_ROOT}/MeubleTV-${VERSION}/nodejs-dev/
-  npm install --unsafe-perm --verbose -g sails
+  npm install --unsafe-perm --info -g sails
   #node meuble-tv.js
 
   cp -n ${REP_ROOT}/MeubleTV-${VERSION}/config/nodejs/node.service  /etc/systemd/system/node.service
