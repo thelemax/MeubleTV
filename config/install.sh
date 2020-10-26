@@ -27,17 +27,19 @@ apt_install() {
 
 #Désinstallation du programme
 step_uninstall() {
+  echo "---------------------------------------------------------------------"
+  echo "${JAUNE}Désinstallation des programmes ${VERSION}${NORMAL}"
   #desinstallation nginx
   apt -y remove nginx
   rm -rf /etc/nginx
   rm -f /etc/systemd/system/node.service
+  echo "${VERT}étape Désinstallation de la révision réussie${NORMAL}"
 }
 
 #Mise à jour des librairies
 step_1_upgrade() {
   echo "---------------------------------------------------------------------"
-  echo "${JAUNE}Commence l'étape 1 de la révision${VERSION}${NORMAL}"
-  
+  echo "${JAUNE}Commence l'étape 1 de la révision ${VERSION}${NORMAL}"
   apt-get update
   apt-get -f install
   apt-get -y dist-upgrade
@@ -76,66 +78,10 @@ step_2_packages() {
   echo "${VERT}étape 2 paquets réussie${NORMAL}"
 }
 
-#Installation du compilateur arduino
-step_3_config_arduino() {
-  echo "---------------------------------------------------------------------"
-  echo "${JAUNE}Commence l'étape 3 configuration arduino${NORMAL}"
-
-  echo "${CYAN}Paramétrage des variables d'environnement arduino${NORMAL}"
-  export ARDUINO_DIR="/usr/share/arduino"
-  export ARDMK_DIR="/usr/share/arduino"
-  export AVR_TOOLS_DIR="/usr"
-  export ISP_PORT="/dev/ttyACM0"
-  
-  echo "${CYAN}Recuperation de FastLED-${FASTLED_VERSION}${NORMAL}"
-  #/usr/share/arduino/libraries
-
-  wget --no-check-certificate https://github.com/FastLED/FastLED/archive/${FASTLED_VERSION}.zip -O /tmp/FastLED-${FASTLED_VERSION}.zip
-  #https://github.com/FastLED/FastLED/archive/master.zip
-  #https://github.com/FastLED/FastLED/archive/3.3.2.zip
-
-  if [ $? -ne 0 ]; then
-    echo "${ROUGE}Ne peut télécharger FastLED depuis github.Annulation${NORMAL}"
-    exit 1
-  fi
-  if [ ! /tmp/FastLED-${FASTLED_VERSION}.zip ]; then
-    echo "${ROUGE}Ne peut trouver l'archive FastLED.zip - Annulation${NORMAL}"
-    exit 1
-  fi
-
-  unzip -q /tmp/FastLED-${FASTLED_VERSION}.zip -d /tmp/
-  if [ $? -ne 0 ]; then
-    echo "${ROUGE}Ne peut décompresser l'archive - Annulation${NORMAL}"
-    exit 1
-  fi
-  rm -r /usr/share/arduino/libraries/FastLED
-  cp -r /tmp/FastLED-${FASTLED_VERSION} /usr/share/arduino/libraries/FastLED
-  
-  rm /tmp/FastLED-${FASTLED_VERSION}.zip
-  rm -r /tmp/FastLED-${FASTLED_VERSION}
-  
-  echo "${CYAN}Recuperation de avrdude.conf -${FASTLED_VERSION}${NORMAL}"
-  wget --no-check-certificate https://github.com/thelemax/MeubleTV/raw/master/config/arduino/avrdude.conf -O /tmp/avrdude.conf
-  
-  if [ $? -ne 0 ]; then
-    echo "${ROUGE}Ne peut télécharger avrdude.conf depuis github.Annulation${NORMAL}"
-    exit 1
-  fi
-  if [ ! /tmp/avrdude.conf ]; then
-    echo "${ROUGE}Ne peut trouver l'archive avrdude.conf - Annulation${NORMAL}"
-    exit 1
-  fi
-  #rm /etc/avrdude.conf
-  cp -n /tmp/avrdude.conf /etc/avrdude.conf
-  rm /tmp/avrdude.conf
-  
-  echo "${VERT}étape 3 configuration arduino réussie${NORMAL}" 
-}
-
 #Récupération des sources
-step_4_recupSources() {
+step_3_recupSources() {
  echo "---------------------------------------------------------------------"
- echo "${JAUNE}Commence l'étape 4 recuperationSources${NORMAL}"
+ echo "${JAUNE}Commence l'étape 3 récuperation Sources${NORMAL}"
 
  wget --no-check-certificate https://github.com/thelemax/MeubleTV/archive/${VERSION}.zip -O /tmp/meubletv.zip
 
@@ -156,26 +102,69 @@ step_4_recupSources() {
 
  rm /tmp/meubletv.zip
  chmod -R 777 ${REP_ROOT}/MeubleTV-${VERSION}
+
+ echo "${VERT}étape 3 récuperation sources réussie${NORMAL}" 
 }
 
 #Installation programme arduino
-step_5_install_arduino(){
- echo "${JAUNE}Commence l'étape 5 arduino${NORMAL}"
- echo "${CYAN}Compilation et Téléversement du programme arduino${NORMAL}"
- if [ -d ${REP_ROOT}/MeubleTV-${VERSION} ]; then
-  cd ${REP_ROOT}/MeubleTV-${VERSION}/arduino-dev/
-  make
-  sh upload.sh
- else
-  echo "${ROUGE}Repertoire introuvable${NORMAL}"
- fi
- echo "${VERT}étape 5 arduino réussi${NORMAL}" 
+step_4_install_arduino(){
+  echo "---------------------------------------------------------------------"
+  echo "${JAUNE}Commence l'étape 4 configuration arduino${NORMAL}"
+
+  if [ -d ${REP_ROOT}/MeubleTV-${VERSION} ]; then
+
+	  echo "${CYAN}Paramétrage des variables d'environnement arduino${NORMAL}"
+	  export ARDUINO_DIR="/usr/share/arduino"
+	  export ARDMK_DIR="/usr/share/arduino"
+	  export AVR_TOOLS_DIR="/usr"
+	  export ISP_PORT="/dev/ttyACM0"
+  
+	  echo "${CYAN}Recuperation de FastLED-${FASTLED_VERSION}${NORMAL}"
+	  #/usr/share/arduino/libraries
+
+	  wget --no-check-certificate https://github.com/FastLED/FastLED/archive/${FASTLED_VERSION}.zip -O /tmp/FastLED-${FASTLED_VERSION}.zip
+	  #https://github.com/FastLED/FastLED/archive/master.zip
+	  #https://github.com/FastLED/FastLED/archive/3.3.2.zip
+
+	  if [ $? -ne 0 ]; then
+		echo "${ROUGE}Ne peut télécharger FastLED depuis github.Annulation${NORMAL}"
+		exit 1
+	  fi
+	  if [ ! /tmp/FastLED-${FASTLED_VERSION}.zip ]; then
+		echo "${ROUGE}Ne peut trouver l'archive FastLED.zip - Annulation${NORMAL}"
+		exit 1
+	  fi
+
+	  unzip -q /tmp/FastLED-${FASTLED_VERSION}.zip -d /tmp/
+	  if [ $? -ne 0 ]; then
+		echo "${ROUGE}Ne peut décompresser l'archive - Annulation${NORMAL}"
+		exit 1
+	  fi
+	  rm -r /usr/share/arduino/libraries/FastLED
+	  cp -r /tmp/FastLED-${FASTLED_VERSION} /usr/share/arduino/libraries/FastLED
+  
+	  rm /tmp/FastLED-${FASTLED_VERSION}.zip
+	  rm -r /tmp/FastLED-${FASTLED_VERSION}
+  
+	  echo "${CYAN}Recuperation de avrdude.conf${NORMAL}"
+	  cp -n ${REP_ROOT}/MeubleTV-${VERSION}/config/arduino/avrdude.conf /etc/avrdude.conf
+
+	  echo "${CYAN}Compilation et Téléversement du programme arduino${NORMAL}"
+      cp -rf ${REP_ROOT}/MeubleTV-${VERSION}/arduino-dev /var/opt/arduino
+	  
+	  cd /var/opt/arduino
+      make
+      sh upload.sh
+  else
+	  echo "${ROUGE}Repertoire introuvable${NORMAL}"
+  fi
+  echo "${VERT}étape 4 arduino réussi${NORMAL}" 
 }
 
 #Installation nginx
-step_6_install_nginx() {
+step_5_install_nginx() {
   echo "---------------------------------------------------------------------"
-  echo "${JAUNE}Commence l'étape 6 nginx${NORMAL}"
+  echo "${JAUNE}Commence l'étape 5 nginx${NORMAL}"
      
   echo "${CYAN}Paramètrage de nginx${NORMAL}"
   if [ -d ${REP_ROOT}/MeubleTV-${VERSION} ]; then
@@ -210,12 +199,12 @@ step_6_install_nginx() {
   else
    echo "${ROUGE}Repertoire introuvable${NORMAL}"
   fi
-  echo "${VERT}étape 6 nginx réussie${NORMAL}" 
+  echo "${VERT}étape 5 nginx réussie${NORMAL}" 
 }
 
 #Installation du programme nodejs
-step_7_install_nodejs(){
- echo "${CYAN}Commence l'étape 7 nodejs${NORMAL}"
+step_6_install_nodejs(){
+ echo "${CYAN}Commence l'étape 6 nodejs${NORMAL}"
  
  if [ -d ${REP_ROOT}/MeubleTV-${VERSION} ]; then
   cp -rf ${REP_ROOT}/MeubleTV-${VERSION}/nodejs-dev /var/www/app
@@ -253,14 +242,17 @@ step_7_install_nodejs(){
  else
   echo "${ROUGE}Repertoire introuvable${NORMAL}"
  fi
- echo "${VERT}étape 7 nodejs réussie${NORMAL}"
+ echo "${VERT}étape 6 nodejs réussie${NORMAL}"
 }
 
 #nettoyage
-step_8_nettoyage() {
+step_7_nettoyage() {
+ echo "---------------------------------------------------------------------"
+ echo "${JAUNE}Commence l'étape 7 nettoyage sources${NORMAL}"
  if [ -d ${REP_ROOT}/MeubleTV-${VERSION} ]; then
   rm -rf ${REP_ROOT}/MeubleTV-${VERSION}
  fi
+ echo "${VERT}étape 7 nettoyage sources réussie${NORMAL}" 
 }
 
 #Variables
@@ -306,40 +298,39 @@ echo "${JAUNE}Version d'installation de MeubleTV : ${VERSION}${NORMAL}"
 case ${STEP} in
   0)
   echo "${JAUNE}Commence toutes les étapes de l'installation${NORMAL}"
-  step_1_upgrade
-  step_2_packages
-  step_3_config_arduino
-  step_4_recupSources
-  step_5_install_arduino
-  step_6_install_nginx
-  step_7_install_nodejs
-  step_8_nettoyage
+	step_1_upgrade
+	step_2_packages
+	step_3_recupSources
+	step_4_install_arduino
+	step_5_install_nginx
+	step_6_install_nodejs
+	step_7_nettoyage
   echo "Installation finie. Un redémarrage devrait être effectué"
   ;;
   1)
   echo "${JAUNE}Commence toutes les étapes de l'installation des sources${NORMAL}"
-  step_4_recupSources
-  step_5_install_arduino
-  step_6_install_nginx
-  step_7_install_nodejs
-  step_8_nettoyage
+	step_3_recupSources
+	step_4_install_arduino
+	step_5_install_nginx
+	step_6_install_nodejs
+	step_7_nettoyage
   echo "Installation finie."
   ;;
   2) 
-  step_1_upgrade
-  step_2_packages
+  echo "${JAUNE}Commence toutes les étapes de l'installation des sources${NORMAL}"
+	step_1_upgrade
+	step_2_packages
+  echo "Mise à jour des paquets terminée"
   ;;
-  3) step_3_config_arduino
+  3) step_3_recupSources
   ;;
-  4) step_4_recupSources
+  4) step_4_install_arduino
   ;;
-  5) step_5_install_arduino
+  5) step_5_install_nginx
   ;;
-  6) step_6_install_nginx
+  6) step_6_install_nodejs
   ;;
-  7) step_7_install_nodejs
-  ;;
-  8) step_8_nettoyage
+  7) step_7_nettoyage
   ;;
   9) step_uninstall
   ;;
