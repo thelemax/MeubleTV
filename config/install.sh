@@ -25,6 +25,14 @@ apt_install() {
   fi
 }
 
+#Désinstallation du programme
+step_uninstall() {
+
+
+
+
+}
+
 #Mise à jour des librairies
 step_1_upgrade() {
   echo "---------------------------------------------------------------------"
@@ -51,6 +59,23 @@ step_3_nginx() {
   echo "---------------------------------------------------------------------"
   echo "${JAUNE}Commence l'étape 3 nginx${NORMAL}"
   apt_install nginx
+   
+  echo "${CYAN}Paramètrage de nginx${NORMAL}"
+  wget --no-check-certificate https://github.com/thelemax/MeubleTV/raw/master/config/nginx/serveur.conf -O /tmp/nginx-serveur.conf
+
+  if [ $? -ne 0 ]; then
+    echo "${ROUGE}Ne peut télécharger nginx-serveur.conf depuis github.Annulation${NORMAL}"
+    exit 1
+  fi
+  if [ ! /tmp/nginx-serveur.conf ]; then
+    echo "${ROUGE}Ne peut trouver l'archive nginx-serveur.conf - Annulation${NORMAL}"
+    exit 1
+  fi
+  rm /etc/nginx/sites-available/nginx-serveur.conf
+  cp /tmp/nginx-serveur /etc/nginx/sites-available/nginx-serveur.conf
+
+  nginx -t
+
   # echo "Check the status of nginx"
   # systemctl status nginx
   echo "${CYAN}Start nginx${NORMAL}"
@@ -75,23 +100,8 @@ step_3_nginx() {
 
   echo "${CYAN}Enable nginx au démarrage${NORMAL}"
   systemctl enable nginx
-  
-  echo "${CYAN}Paramètrage de nginx${NORMAL}"
-  wget --no-check-certificate https://github.com/thelemax/MeubleTV/raw/master/config/nginx/serveur.conf -O /tmp/nginx-serveur.conf
-
-  if [ $? -ne 0 ]; then
-    echo "${ROUGE}Ne peut télécharger nginx-serveur.conf depuis github.Annulation${NORMAL}"
-    exit 1
-  fi
-  if [ ! /tmp/nginx-serveur.conf ]; then
-    echo "${ROUGE}Ne peut trouver l'archive nginx-serveur.conf - Annulation${NORMAL}"
-    exit 1
-  fi
-  rm /etc/nginx/sites-available/nginx-serveur.conf
-  cp /tmp/nginx-serveur /etc/nginx/sites-available/nginx-serveur.conf
-
-  nginx -t
-  /etc/init.d/nginx reload
+    
+  #/etc/init.d/nginx reload
 
   echo "${VERT}étape 3 nginx réussie${NORMAL}" 
 }
@@ -215,7 +225,30 @@ step_8_install_nodejs(){
  echo "${CYAN}Compilation et Démarrage du programme nodejs${NORMAL}"
  cd ${REP_ROOT}/MeubleTV-${VERSION}/nodejs-dev/
  npm install --unsafe-perm --verbose -g sails
- node meuble-tv.js
+ #node meuble-tv.js
+
+  echo "${CYAN}Start node{NORMAL}"
+  systemctl status node > /dev/null 2>&1
+  if [ $? -ne 0 ]; then
+    service node status
+    if [ $? -ne 0 ]; then
+      systemctl start node > /dev/null 2>&1
+      if [ $? -ne 0 ]; then
+        service node start > /dev/null 2>&1
+      fi
+    fi
+  fi
+  systemctl status node > /dev/null 2>&1
+  if [ $? -ne 0 ]; then
+    service node status
+    if [ $? -ne 0 ]; then
+      echo "${ROUGE}Ne peut lancer node - Annulation${NORMAL}"
+      exit 1
+    fi
+  fi
+
+  echo "${CYAN}Enable node au démarrage${NORMAL}"
+  systemctl enable node
 
  cd ${REP_ROOT}/MeubleTV-${VERSION}
  echo "${VERT}étape 8 meubletv réussie${NORMAL}" 
