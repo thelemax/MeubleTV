@@ -14,10 +14,6 @@
 
 ![Schéma de Montage](/docs/schéma.png)
 
-### Montage
-
-TODO
-
 ## Installation de l'OS sur le raspberry pi zero w
 
 ### Installation de Raspbian
