@@ -27,17 +27,16 @@ apt_install() {
 
 #Désinstallation du programme
 step_uninstall() {
-
- #desinstallation nginx
- apt -y remove nginx
- rm -rf /etc/nginx
-
+  #desinstallation nginx
+  apt -y remove nginx
+  rm -rf /etc/nginx
+  rm -f /etc/systemd/system/node.service
 }
 
 #Mise à jour des librairies
 step_1_upgrade() {
   echo "---------------------------------------------------------------------"
-  echo "${JAUNE}Commence l'étape 1 de la révision${NORMAL}"
+  echo "${JAUNE}Commence l'étape 1 de la révision${VERSION}${NORMAL}"
   
   apt-get update
   apt-get -f install
@@ -46,72 +45,21 @@ step_1_upgrade() {
 }
 
 #Installation des packages principaux
-step_2_mainpackage() {
+step_2_packages() {
   echo "---------------------------------------------------------------------"
-  echo "${JAUNE}Commence l'étape 2 paquet principal${NORMAL}"
+  echo "${JAUNE}Commence l'étape 2 paquets${NORMAL}"
+
+  echo "${JAUNE}Paquets principaux${NORMAL}"
   apt_install ntp ca-certificates unzip curl sudo cron
   apt-get -y install locate tar telnet wget logrotate fail2ban dos2unix ntpdate htop iotop vim iftop smbclient
   apt-get -y install git nano
-  echo "${VERT}étape 2 paquet principal réussie${NORMAL}"
-}
 
-#Installation nginx
-step_3_nginx() {
-  echo "---------------------------------------------------------------------"
-  echo "${JAUNE}Commence l'étape 3 nginx${NORMAL}"
+  #Installation nginx
+  echo "${JAUNE}nginx${NORMAL}"
   apt_install nginx
-   
-  echo "${CYAN}Paramètrage de nginx${NORMAL}"
-  wget --no-check-certificate https://github.com/thelemax/MeubleTV/raw/master/config/nginx/serveur.conf -O /tmp/nginx-serveur.conf
-
-  if [ $? -ne 0 ]; then
-    echo "${ROUGE}Ne peut télécharger nginx-serveur.conf depuis github.Annulation${NORMAL}"
-    exit 1
-  fi
-  if [ ! /tmp/nginx-serveur.conf ]; then
-    echo "${ROUGE}Ne peut trouver l'archive nginx-serveur.conf - Annulation${NORMAL}"
-    exit 1
-  fi
-  #rm /etc/nginx/sites-available/nginx-serveur.conf
-  cp -n /tmp/nginx-serveur.conf /etc/nginx/sites-available/nginx-serveur.conf
-
-  nginx -t
-
-  # echo "Check the status of nginx"
-  # systemctl status nginx
-  echo "${CYAN}Start nginx${NORMAL}"
-  systemctl status nginx > /dev/null 2>&1
-  if [ $? -ne 0 ]; then
-    service nginx status
-    if [ $? -ne 0 ]; then
-      systemctl start nginx > /dev/null 2>&1
-      if [ $? -ne 0 ]; then
-        service nginx start > /dev/null 2>&1
-      fi
-    fi
-  fi
-  systemctl status nginx > /dev/null 2>&1
-  if [ $? -ne 0 ]; then
-    service nginx status
-    if [ $? -ne 0 ]; then
-      echo "${ROUGE}Ne peut lancer nginx - Annulation${NORMAL}"
-      exit 1
-    fi
-  fi
-
-  echo "${CYAN}Enable nginx au démarrage${NORMAL}"
-  systemctl enable nginx
-    
-  #/etc/init.d/nginx reload
-
-  echo "${VERT}étape 3 nginx réussie${NORMAL}" 
-}
-
-#Installation nodejs et npm
-step_4_nodejs() {
-  echo "---------------------------------------------------------------------"
-  echo "${JAUNE}Commence l'étape 4 nodejs${NORMAL}"
   
+  #Installation nodejs
+  echo "${JAUNE}nodejs${NORMAL}"
   #curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -
   apt_install nodejs npm
   
@@ -119,18 +67,20 @@ step_4_nodejs() {
   node -v
   
   echo "${CYAN}npm version :${NORMAL}"
-  npm -v
+  npm -vs
 
-  #npm install pm2
-  echo "${VERT}étape 4 nodejs réussie${NORMAL}" 
+  #Installation arduino
+  echo "${JAUNE}arduino{NORMAL}"
+  apt_install arduino-core arduino-mk
+  
+  echo "${VERT}étape 2 paquets réussie${NORMAL}"
 }
 
 #Installation du compilateur arduino
-step_5_arduino() {
+step_3_config_arduino() {
   echo "---------------------------------------------------------------------"
-  echo "${JAUNE}Commence l'étape 5 arduino${NORMAL}"
-  apt_install arduino-core arduino-mk
-  
+  echo "${JAUNE}Commence l'étape 3 configuration arduino${NORMAL}"
+
   echo "${CYAN}Paramétrage des variables d'environnement arduino${NORMAL}"
   export ARDUINO_DIR="/usr/share/arduino"
   export ARDMK_DIR="/usr/share/arduino"
@@ -179,13 +129,13 @@ step_5_arduino() {
   cp -n /tmp/avrdude.conf /etc/avrdude.conf
   rm /tmp/avrdude.conf
   
-  echo "${VERT}étape 5 arduino réussie${NORMAL}" 
+  echo "${VERT}étape 3 configuration arduino réussie${NORMAL}" 
 }
 
 #Récupération des sources
-step_6_meubletv() {
+step_4_recupSources() {
  echo "---------------------------------------------------------------------"
- echo "${JAUNE}Commence l'étape 6 meubletv${NORMAL}"
+ echo "${JAUNE}Commence l'étape 4 recuperationSources${NORMAL}"
 
  wget --no-check-certificate https://github.com/thelemax/MeubleTV/archive/${VERSION}.zip -O /tmp/meubletv.zip
 
@@ -205,12 +155,12 @@ step_6_meubletv() {
  fi
 
  rm /tmp/meubletv.zip
-
  chmod -R 777 ${REP_ROOT}/MeubleTV-${VERSION}
 }
 
 #Installation programme arduino
-step_7_install_arduino(){
+step_5_install_arduino(){
+ echo "${JAUNE}Commence l'étape 5 arduino${NORMAL}"
  echo "${CYAN}Compilation et Téléversement du programme arduino${NORMAL}"
  if [ -d ${REP_ROOT}/MeubleTV-${VERSION} ]; then
   cd ${REP_ROOT}/MeubleTV-${VERSION}/arduino-dev/
@@ -219,24 +169,67 @@ step_7_install_arduino(){
  else
   echo "${ROUGE}Repertoire introuvable${NORMAL}"
  fi
- echo "${VERT}étape 7 meubletv réussie${NORMAL}" 
+ echo "${VERT}étape 5 arduino réussi${NORMAL}" 
+}
+
+#Installation nginx
+step_6_install_nginx() {
+  echo "---------------------------------------------------------------------"
+  echo "${JAUNE}Commence l'étape 6 nginx${NORMAL}"
+     
+  echo "${CYAN}Paramètrage de nginx${NORMAL}"
+  if [ -d ${REP_ROOT}/MeubleTV-${VERSION} ]; then
+   cp -f ${REP_ROOT}/MeubleTV-${VERSION}/config/nginx/serveur.conf /etc/nginx/sites-available/nginx-serveur.conf
+
+   nginx -t
+
+   # echo "Check the status of nginx"
+   # systemctl status nginx
+   echo "${CYAN}Start nginx${NORMAL}"
+   systemctl status nginx > /dev/null 2>&1
+   if [ $? -ne 0 ]; then
+    service nginx status
+    if [ $? -ne 0 ]; then
+      systemctl start nginx > /dev/null 2>&1
+      if [ $? -ne 0 ]; then
+        service nginx start > /dev/null 2>&1
+      fi
+    fi
+   fi
+   systemctl status nginx > /dev/null 2>&1
+   if [ $? -ne 0 ]; then
+    service nginx status
+    if [ $? -ne 0 ]; then
+      echo "${ROUGE}Ne peut lancer nginx - Annulation${NORMAL}"
+      exit 1
+    fi
+   fi
+   echo "${CYAN}Enable nginx au démarrage${NORMAL}"
+   systemctl enable nginx 
+   #/etc/init.d/nginx reload
+  else
+   echo "${ROUGE}Repertoire introuvable${NORMAL}"
+  fi
+  echo "${VERT}étape 6 nginx réussie${NORMAL}" 
 }
 
 #Installation du programme nodejs
-step_8_install_nodejs(){
- echo "${CYAN}Compilation et Démarrage du programme nodejs${NORMAL}"
-
+step_7_install_nodejs(){
+ echo "${CYAN}Commence l'étape 7 nodejs${NORMAL}"
+ 
  if [ -d ${REP_ROOT}/MeubleTV-${VERSION} ]; then
-  cd ${REP_ROOT}/MeubleTV-${VERSION}/nodejs-dev/
+  cp -rf ${REP_ROOT}/MeubleTV-${VERSION}/nodejs-dev /var/www/app
+
+  cd /var/www/app/
   npm install --unsafe-perm --info -g sails
-  #node meuble-tv.js
+  node meuble-tv.js
 
   cp -n ${REP_ROOT}/MeubleTV-${VERSION}/config/nodejs/node.service  /etc/systemd/system/node.service
 
-  # echo "Check the status of node"
-  # systemctl status node
+  echo "Check the status of node"
+  systemctl status node
   echo "${CYAN}Start node{NORMAL}"
- 
+
   systemctl status node > /dev/null 2>&1
   if [ $? -ne 0 ]; then
    service node status
@@ -260,7 +253,14 @@ step_8_install_nodejs(){
  else
   echo "${ROUGE}Repertoire introuvable${NORMAL}"
  fi
- echo "${VERT}étape 8 meubletv réussie${NORMAL}" 
+ echo "${VERT}étape 7 nodejs réussie${NORMAL}"
+}
+
+#nettoyage
+step_8_nettoyage() {
+ if [ -d ${REP_ROOT}/MeubleTV-${VERSION} ]; then
+  rm -rf ${REP_ROOT}/MeubleTV-${VERSION}
+ fi
 }
 
 #Variables
@@ -307,30 +307,39 @@ case ${STEP} in
   0)
   echo "${JAUNE}Commence toutes les étapes de l'installation${NORMAL}"
   step_1_upgrade
-  step_2_mainpackage
-  step_3_nginx
-  step_4_nodejs
-  step_5_arduino
-  step_6_meubletv
-  step_7_install_arduino
-  step_8_install_nodejs
+  step_2_packages
+  step_3_config_arduino
+  step_4_recupSources
+  step_5_install_arduino
+  step_6_install_nginx
+  step_7_install_nodejs
+  step_8_nettoyage
   echo "Installation finie. Un redémarrage devrait être effectué"
   ;;
-  1) step_1_upgrade
+  1)
+  echo "${JAUNE}Commence toutes les étapes de l'installation des sources${NORMAL}"
+  step_4_recupSources
+  step_5_install_arduino
+  step_6_install_nginx
+  step_7_install_nodejs
+  step_8_nettoyage
+  echo "Installation finie."
   ;;
-  2) step_2_mainpackage
+  2) 
+  step_1_upgrade
+  step_2_packages
   ;;
-  3) step_3_nginx
+  3) step_3_config_arduino
   ;;
-  4) step_4_nodejs
+  4) step_4_recupSources
   ;;
-  5) step_5_arduino
+  5) step_5_install_arduino
   ;;
-  6) step_6_meubletv
+  6) step_6_install_nginx
   ;;
-  7) step_7_install_arduino
+  7) step_7_install_nodejs
   ;;
-  8) step_8_install_nodejs
+  8) step_8_nettoyage
   ;;
   9) step_uninstall
   ;;
