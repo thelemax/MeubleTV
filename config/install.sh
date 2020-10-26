@@ -26,7 +26,12 @@ apt_install() {
 }
 
 #Désinstallation du programme
-#step_uninstall() { }
+step_uninstall() {
+
+ #desinstallation nginx
+ apt -y remove nginx
+
+}
 
 #Mise à jour des librairies
 step_1_upgrade() {
@@ -67,7 +72,7 @@ step_3_nginx() {
     exit 1
   fi
   rm /etc/nginx/sites-available/nginx-serveur.conf
-  cp /tmp/nginx-serveur /etc/nginx/sites-available/nginx-serveur.conf
+  cp /tmp/nginx-serveur.conf /etc/nginx/sites-available/nginx-serveur.conf
 
   nginx -t
 
