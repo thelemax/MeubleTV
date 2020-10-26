@@ -26,7 +26,7 @@ Guide d'installation: https://www.raspberrypi.org/documentation/installation/ins
 
 Dans le répertoire Boot, copier les fichier suivants:
 - Un fichier vide nommé ssh
-- Un fichier wpa_supplicant.conf
+- Un fichier wpa_supplicant.conf contenant:
 
 ```
 country=FR # Your 2-digit country code
