@@ -10,12 +10,16 @@
 #ifndef MeubleLumineux_h
 #define MeubleLumineux_h
 
+#define FASTLED_INTERNAL // Eliminates a compiler warning
+
 #include <Arduino.h>
 #include <FastLED.h>
 
 #define NUM_LEDS    92 // Nombre de LEDS par RUBAN
 #define LED_TYPE    APA102 //Type de LED
 #define COLOR_ORDER BGR // Mode de couleur des LED
+
+#define NB_BANDEAU     2
 
 //Bandeau 1
 #define CLK_PIN_1     11
@@ -33,7 +37,7 @@
 #define CLK_PIN_4     5
 #define DATA_PIN_4    4
 
-//Luminosité max
+//Luminositï¿½ max
 #define BRIGHTNESSMAX 64
 
 //Nombre Vertical Max
