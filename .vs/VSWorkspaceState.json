@@ -2,13 +2,11 @@
   "ExpandedNodes": [
     "",
     "\\arduino-dev",
+    "\\arduino-dev\\Meuble_TV_Arduino",
     "\\config",
-    "\\config\\arduino",
     "\\config\\nginx",
     "\\config\\nodejs",
-    "\\docs",
-    "\\nodejs-dev"
+    "\\docs"
   ],
-  "SelectedNode": "\\.gitignore",
   "PreviewInSolutionExplorer": false
 }
